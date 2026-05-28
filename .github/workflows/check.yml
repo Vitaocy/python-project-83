@@ -1,0 +1,25 @@
+name: Page Analyzer Check (lint+test)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install
+        run: make install
+
+      - name: Linter check
+        run: make lint
+    
+      - name: Test
+        run: make test
