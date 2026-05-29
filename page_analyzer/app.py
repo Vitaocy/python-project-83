@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, url_for, flash, redirect, get_flashed_messages
 from url_repository import UrlRepository
-import validators
+from validators import url as url_validate
 
 
 load_dotenv()
@@ -19,7 +19,7 @@ def validate(url):
         errors["name"] = "Can't be blank"
     elif len(name) > 255:
         errors["name"] = "URL must be shorter than 255 characters"
-    elif not validators.url(name):
+    elif not url_validate(name):
         errors["name"] = "Invalid URL"
 
     return errors
@@ -40,7 +40,8 @@ def urls_get():
 def urls_show(id):
     messages = get_flashed_messages(with_categories=True)
     url = repo.find(id)
-    return render_template('urls_show.html', url=url, messages=messages)
+    checks = repo.get_checks(id) 
+    return render_template('urls_show.html', url=url, checks=checks, messages=messages)
 
 
 @app.post('/urls')
@@ -55,3 +56,14 @@ def urls_post():
     repo.save(url)
     flash('Страница успешно добавлена', 'success')
     return redirect(url_for('urls_show', id=url['id']))
+
+
+@app.post('/urls/<id>/checks')
+def urls_checks(id):
+    try:
+        repo.add_check(id)
+        flash('Страница успешно проверена', 'success')
+    except Exception:
+        flash('Произошла ошибка при проверке', 'danger')
+        
+    return redirect(url_for('urls_show', id=id))

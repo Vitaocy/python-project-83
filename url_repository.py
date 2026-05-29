@@ -12,7 +12,17 @@ class UrlRepository:
     def get_content(self):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=DictCursor) as cur:
-                cur.execute("SELECT * FROM urls ORDER BY created_at DESC")
+                query = '''
+                SELECT DISTINCT ON (urls.id)
+                                urls.id, 
+                                urls.name, 
+                                url_checks.checked_at AS last_check, 
+                                url_checks.code AS status_code
+                            FROM urls
+                            LEFT JOIN url_checks ON urls.id = url_checks.url_id
+                            ORDER BY urls.id, url_checks.id DESC;
+                '''
+                cur.execute(query)
                 return [dict(row) for row in cur]
 
     def find(self, id):
@@ -57,3 +67,15 @@ class UrlRepository:
             with conn.cursor() as cur:
                 cur.execute("DELETE FROM urls WHERE id = %s", (id,))
             conn.commit()
+
+    def add_check(self, url_id):
+        with self.get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("INSERT INTO url_checks (url_id) VALUES (%s)", (url_id,))
+            conn.commit()
+
+    def get_checks(self, url_id):
+        with self.get_connection() as conn:
+            with conn.cursor(cursor_factory=DictCursor) as cur:
+                cur.execute("SELECT * FROM url_checks WHERE url_id = %s ORDER BY id DESC", (url_id,))
+                return [dict(row) for row in cur]

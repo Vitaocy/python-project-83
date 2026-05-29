@@ -51,12 +51,12 @@
             </div>
 
             <h2 class="mt-5">Проверки</h2>
-            <form method="post" action="/urls/{{ url.id }}/checks">
-                <button type="submit" class="btn btn-primary">Запустить проверку</button>
+            <form method="post" action="/urls/{{ url.id }}/checks" class="mb-3">
+                <input type="submit" class="btn btn-primary" value="Запустить проверку">
             </form>
 
             <div class="table-responsive mt-3">
-                <table class="table table-bordered table-hover">
+                <table class="table table-bordered table-hover" data-test="checks">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -68,7 +68,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- проверки -->
+                        {% for check in checks %}
+                        <tr>
+                            <td>{{ check.id }}</td>
+                            <td>{{ check.code or '' }}</td>
+                            <td>{{ check.h1 or '' }}</td>
+                            <td>{{ check.title or '' }}</td>
+                            <td>{{ check.description or '' }}</td>
+                            <td>{{ check.checked_at or '' }}</td>
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
