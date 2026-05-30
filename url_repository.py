@@ -89,6 +89,6 @@ class UrlRepository:
     
     def find_by_name(self, name):
         with self.get_connection() as conn:
-            with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+            with conn.cursor(cursor_factory=DictCursor) as cur:
                 cur.execute("SELECT * FROM urls WHERE name = %s;", (name,))
                 return cur.fetchone()
