@@ -21,6 +21,14 @@
     </nav>
 
     <main class="flex-grow-1">
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} rounded-0 mb-0" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
         <div class="container-lg mt-3">
             <h1>Сайты</h1>
             <div class="table-responsive">

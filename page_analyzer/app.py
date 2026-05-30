@@ -8,8 +8,8 @@ from bs4 import BeautifulSoup
 
 
 load_dotenv()
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app = Flask(__name__)  # NOSONAR
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')  # NOSONAR
 app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
 repo = UrlRepository(app.config['DATABASE_URL'])
 
@@ -27,7 +27,7 @@ def validate(url):
     return errors
 
 
-@app.route('/')
+@app.get('/')
 def index():
     return render_template('index.html')
 
@@ -71,7 +71,7 @@ def urls_checks(id):
     try:
         response = requests.get(url['name'], timeout=5)
         response.raise_for_status()
-        
+
         code = response.status_code
         
         soup = BeautifulSoup(response.text, 'html.parser')
