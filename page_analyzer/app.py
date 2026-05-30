@@ -19,11 +19,11 @@ def validate(url):
     errors = {}
     name = url.get("name", "")
     if not name:
-        errors["name"] = "Can't be blank"
+        errors["name"] = "Необходимо заполнить"
     elif len(name) > 255:
-        errors["name"] = "URL must be shorter than 255 characters"
+        errors["name"] = "URL превышает 255 символов"
     elif not url_validate(name):
-        errors["name"] = "Invalid URL"
+        errors["name"] = "Некорректный URL"
 
     return errors
 

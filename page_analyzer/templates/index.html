@@ -53,7 +53,7 @@
                                     required>
                                 
                                 {% if errors and errors.get('name') %}
-                                    <div class="invalid-feedback">
+                                    <div class="alert alert-danger" role="alert">
                                         {{ errors['name'] }}
                                     </div>
                                 {% endif %}
