@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, url_for, flash, redirect, get
 from url_repository import UrlRepository
 from validators import url as url_validate
 import requests
+from bs4 import BeautifulSoup
 
 
 load_dotenv()
@@ -70,7 +71,29 @@ def urls_checks(id):
     try:
         response = requests.get(url['name'], timeout=5)
         response.raise_for_status()
-        repo.add_check(id, response.status_code)
+        
+        code = response.status_code
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        h1_tag = soup.find('h1')
+        h1 = h1_tag.get_text(strip=True) if h1_tag else ''
+
+        title_tag = soup.find('title')
+        title = title_tag.get_text(strip=True) if title_tag else ''
+        
+        meta_description = soup.find('meta', attrs={'name': 'description'})
+        description = meta_description.get('content', '') if meta_description else ''
+        
+        check_data = {
+            'url_id': id,
+            'code': code,
+            'h1': h1,
+            'title': title,
+            'description': description
+        }
+
+        repo.add_check(check_data)
         flash('Страница успешно проверена', 'success')
         
     except requests.RequestException:

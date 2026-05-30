@@ -72,9 +72,9 @@
                         <tr>
                             <td>{{ check.id }}</td>
                             <td>{{ check.code or '' }}</td>
-                            <td>{{ check.h1 or '' }}</td>
-                            <td>{{ check.title or '' }}</td>
-                            <td>{{ check.description or '' }}</td>
+                            <td>{{ (check.h1 or '') | truncate(200, True) }}</td>
+                            <td>{{ (check.title or '') | truncate(200, True) }}</td>
+                            <td>{{ (check.description or '') | truncate(200, True) }}</td>
                             <td>{{ check.checked_at or '' }}</td>
                         </tr>
                         {% endfor %}

@@ -71,10 +71,14 @@ class UrlRepository:
                 cur.execute("DELETE FROM urls WHERE id = %s", (id,))
             conn.commit()
 
-    def add_check(self, url_id, code):
+    def add_check(self, check_data):
         with self.get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("INSERT INTO url_checks (url_id, code) VALUES (%s, %s)", (url_id, code))
+                query = """
+                    INSERT INTO url_checks (url_id, code, h1, title, description) 
+                    VALUES (%(url_id)s, %(code)s, %(h1)s, %(title)s, %(description)s)
+                """
+                cur.execute(query, check_data)
             conn.commit()
 
     def get_checks(self, url_id):
