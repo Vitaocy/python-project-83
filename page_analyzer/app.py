@@ -5,6 +5,7 @@ from url_repository import UrlRepository
 from validators import url as url_validate
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 
 
 load_dotenv()
@@ -55,6 +56,16 @@ def urls_post():
     if errors:
         return render_template('index.html', url=url, errors=errors), 422
 
+    parsed_url = urlparse(url_data)
+    normalized_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+
+    existing_url = repo.find_by_name(normalized_url)
+
+    if existing_url:
+        flash('Страница уже существует', 'info')
+        return redirect(url_for('urls_show', id=existing_url['id']))
+
+    url = {'name': normalized_url}
     repo.save(url)
     flash('Страница успешно добавлена', 'success')
     return redirect(url_for('urls_show', id=url['id']))

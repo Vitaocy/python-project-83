@@ -86,3 +86,9 @@ class UrlRepository:
             with conn.cursor(cursor_factory=DictCursor) as cur:
                 cur.execute("SELECT * FROM url_checks WHERE url_id = %s ORDER BY id DESC", (url_id,))
                 return [dict(row) for row in cur]
+    
+    def find_by_name(self, name):
+        with self.get_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+                cur.execute("SELECT * FROM urls WHERE name = %s;", (name,))
+                return cur.fetchone()
