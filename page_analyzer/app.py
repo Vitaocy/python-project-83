@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, url_for, flash, redirect, get_flashed_messages
 from url_repository import UrlRepository
 from validators import url as url_validate
+import requests
 
 
 load_dotenv()
@@ -60,10 +61,19 @@ def urls_post():
 
 @app.post('/urls/<id>/checks')
 def urls_checks(id):
+    url = repo.find(id)
+    
+    if url is None:
+        flash('URL not found', 'danger')
+        return redirect(url_for('urls_show', id=id))
+    
     try:
-        repo.add_check(id)
+        response = requests.get(url['name'], timeout=5)
+        response.raise_for_status()
+        repo.add_check(id, response.status_code)
         flash('Страница успешно проверена', 'success')
-    except Exception:
+        
+    except requests.RequestException:
         flash('Произошла ошибка при проверке', 'danger')
         
     return redirect(url_for('urls_show', id=id))

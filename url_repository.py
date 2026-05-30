@@ -7,7 +7,10 @@ class UrlRepository:
         self.db_url = db_url
 
     def get_connection(self):
-        return psycopg2.connect(self.db_url)
+        conn = psycopg2.connect(self.db_url)
+        with conn.cursor() as cur:
+            cur.execute("SET TIME ZONE 'Europe/Moscow';")
+        return conn
 
     def get_content(self):
         with self.get_connection() as conn:
@@ -68,10 +71,10 @@ class UrlRepository:
                 cur.execute("DELETE FROM urls WHERE id = %s", (id,))
             conn.commit()
 
-    def add_check(self, url_id):
+    def add_check(self, url_id, code):
         with self.get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("INSERT INTO url_checks (url_id) VALUES (%s)", (url_id,))
+                cur.execute("INSERT INTO url_checks (url_id, code) VALUES (%s, %s)", (url_id, code))
             conn.commit()
 
     def get_checks(self, url_id):
