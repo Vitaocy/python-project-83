@@ -16,14 +16,14 @@ class UrlRepository:
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=DictCursor) as cur:
                 query = '''
-                SELECT DISTINCT ON (urls.id)
-                                urls.id, 
-                                urls.name, 
-                                url_checks.checked_at AS last_check, 
-                                url_checks.code AS status_code
-                            FROM urls
-                            LEFT JOIN url_checks ON urls.id = url_checks.url_id
-                            ORDER BY urls.id, url_checks.id DESC;
+                    SELECT DISTINCT ON (urls.id)
+                        urls.id, 
+                        urls.name, 
+                        url_checks.checked_at AS last_check, 
+                        url_checks.code AS status_code
+                    FROM urls
+                    LEFT JOIN url_checks ON urls.id = url_checks.url_id
+                    ORDER BY urls.id DESC, url_checks.id DESC;
                 '''
                 cur.execute(query)
                 return [dict(row) for row in cur]
