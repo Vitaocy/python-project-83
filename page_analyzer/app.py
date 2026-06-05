@@ -1,11 +1,11 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, url_for, flash, redirect, get_flashed_messages
-from url_repository import UrlRepository
-from validators import url as url_validate
+from page_analyzer.url_repository import UrlRepository
+from page_analyzer.validators import validate_url
+from page_analyzer.parser import parse_data
 import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse
+from page_analyzer.url_normalizer import normalize_url
 
 
 load_dotenv()
@@ -13,19 +13,6 @@ app = Flask(__name__)  # NOSONAR
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')  # NOSONAR
 app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
 repo = UrlRepository(app.config['DATABASE_URL'])
-
-
-def validate(url):
-    errors = {}
-    name = url.get("name", "")
-    if not name:
-        errors["name"] = "Необходимо заполнить"
-    elif len(name) > 255:
-        errors["name"] = "URL превышает 255 символов"
-    elif not url_validate(name):
-        errors["name"] = "Некорректный URL"
-
-    return errors
 
 
 @app.get('/')
@@ -52,12 +39,11 @@ def urls_post():
     url_data = request.form.get('url')
     url = {'name': url_data}
 
-    errors = validate(url)
+    errors = validate_url(url)
     if errors:
         return render_template('index.html', url=url, errors=errors), 422
 
-    parsed_url = urlparse(url_data)
-    normalized_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+    normalized_url = normalize_url(url_data)
 
     existing_url = repo.find_by_name(normalized_url)
 
@@ -80,28 +66,11 @@ def urls_checks(id):
         return redirect(url_for('urls_show', id=id))
     
     try:
-        response = requests.get(url['name'], timeout=5)
-        response.raise_for_status()
+        page_data = parse_data(url['name'])
 
-        code = response.status_code
-        
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        h1_tag = soup.find('h1')
-        h1 = h1_tag.get_text(strip=True) if h1_tag else ''
-
-        title_tag = soup.find('title')
-        title = title_tag.get_text(strip=True) if title_tag else ''
-        
-        meta_description = soup.find('meta', attrs={'name': 'description'})
-        description = meta_description.get('content', '') if meta_description else ''
-        
         check_data = {
             'url_id': id,
-            'code': code,
-            'h1': h1,
-            'title': title,
-            'description': description
+            **page_data
         }
 
         repo.add_check(check_data)
