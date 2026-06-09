@@ -16,5 +16,8 @@ def parse_data(url):
         'code': response.status_code,
         'h1': h1_tag.get_text(strip=True) if h1_tag else '',
         'title': title_tag.get_text(strip=True) if title_tag else '',
-        'description': meta_description.get('content', '') if meta_description else '',
+        'description': (
+            meta_description.get('content', '')
+            if meta_description else ''
+        ),
     }

@@ -1,12 +1,21 @@
 import os
+
+import requests
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, url_for, flash, redirect, get_flashed_messages
+from flask import (
+    Flask,
+    flash,
+    get_flashed_messages,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+
+from page_analyzer.parser import parse_data
+from page_analyzer.url_normalizer import normalize_url
 from page_analyzer.url_repository import UrlRepository
 from page_analyzer.validators import validate_url
-from page_analyzer.parser import parse_data
-import requests
-from page_analyzer.url_normalizer import normalize_url
-
 
 load_dotenv()
 app = Flask(__name__)  # NOSONAR
@@ -31,7 +40,12 @@ def urls_show(id):
     messages = get_flashed_messages(with_categories=True)
     url = repo.find(id)
     checks = repo.get_checks(id) 
-    return render_template('urls_show.html', url=url, checks=checks, messages=messages)
+    return render_template(
+        'urls_show.html', 
+        url=url, 
+        checks=checks, 
+        messages=messages
+    )
 
 
 @app.post('/urls')

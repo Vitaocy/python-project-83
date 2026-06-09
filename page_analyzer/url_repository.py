@@ -75,8 +75,15 @@ class UrlRepository:
         with self.get_connection() as conn:
             with conn.cursor() as cur:
                 query = """
-                    INSERT INTO url_checks (url_id, code, h1, title, description) 
-                    VALUES (%(url_id)s, %(code)s, %(h1)s, %(title)s, %(description)s)
+                    INSERT INTO url_checks
+                        (url_id, code, h1, title, description) 
+                    VALUES (
+                        %(url_id)s, 
+                        %(code)s, 
+                        %(h1)s, 
+                        %(title)s, 
+                        %(description)s
+                    )
                 """
                 cur.execute(query, check_data)
             conn.commit()
@@ -84,7 +91,12 @@ class UrlRepository:
     def get_checks(self, url_id):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=DictCursor) as cur:
-                cur.execute("SELECT * FROM url_checks WHERE url_id = %s ORDER BY id DESC", (url_id,))
+                query = '''
+                    SELECT * FROM url_checks
+                    WHERE url_id = %s
+                    ORDER BY id DESC
+                '''
+                cur.execute(query, (url_id,))
                 return [dict(row) for row in cur]
     
     def find_by_name(self, name):
